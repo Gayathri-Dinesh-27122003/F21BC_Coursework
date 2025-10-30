@@ -1,0 +1,20 @@
+# Virtual environments
+coursework_env/
+venv/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+
+# Results - be selective
+results/*.log
+results/temp_*
+results/debug_*
