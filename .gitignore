@@ -18,3 +18,9 @@ __pycache__/
 results/*.log
 results/temp_*
 results/debug_*
+
+# Virtual environments
+F21BC_Coursework/  # Your virtual environment folder
+coursework_env/
+venv/
+.env/
