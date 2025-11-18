@@ -128,7 +128,7 @@ class PSO:
             tuple: (best_position, best_fitness, history)
         """
         if verbose:
-            print(f"🚀 Starting PSO Optimization")
+            print(f" Starting PSO Optimization")
             print(f"   Swarm size: {self.swarm_size}")
             print(f"   Informants per particle: {self.num_informants}")
             print(f"   Search dimension: {self.dimension}")
@@ -157,7 +157,7 @@ class PSO:
         
         if verbose:
             print("=" * 50)
-            print(f"✅ Optimization completed!")
+            print(f" Optimization completed!")
             print(f"   Final best fitness: {self.global_best_fitness:.6f}")
             print(f"   Total iterations: {self.max_iterations}")
         

@@ -6,3 +6,6 @@ notebook
 ipykernel
 ucimlrepo
 joblib
+flask
+matplotlib
+seaborn

@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PSO-ANN Web Application</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>PSO-ANN Optimizer</h1>
+            <p class="subtitle">Particle Swarm Optimization for Neural Network Training</p>
+            <p class="description">Predict concrete compressive strength using optimized neural networks</p>
+        </header>
+
+        <div class="main-content">
+            <!-- Left Panel: Input Controls -->
+            <div class="input-panel">
+                <h2>Configuration</h2>
+
+                <!-- Quick Templates -->
+                <div class="section">
+                    <h3>Quick Templates</h3>
+                    <div class="template-buttons">
+                        <button class="template-btn" onclick="loadTemplate(0)">Small</button>
+                        <button class="template-btn" onclick="loadTemplate(1)">Medium</button>
+                        <button class="template-btn" onclick="loadTemplate(2)">Deep</button>
+                        <button class="template-btn" onclick="loadTemplate(3)">Large</button>
+                    </div>
+                </div>
+
+                <!-- Network Architecture -->
+                <div class="section">
+                    <h3>Network Architecture</h3>
+                    <div class="form-group">
+                        <label>Hidden Layers (comma-separated sizes)</label>
+                        <input type="text" id="hiddenLayers" value="64,32" placeholder="e.g., 128,64,32">
+                        <small>Note: Input (8) and Output (1) are automatic</small>
+                    </div>
+                    <div id="layerPreview" class="layer-preview"></div>
+                </div>
+
+                <!-- Activation Functions -->
+                <div class="section">
+                    <h3>Activation Functions</h3>
+                    <div id="activationContainer" class="activation-container">
+                        <!-- Dynamically populated based on hidden layers -->
+                    </div>
+                    <small id="activationNote">Configure activation functions for each layer</small>
+                </div>
+
+                <!-- PSO Parameters -->
+                <div class="section">
+                    <h3>PSO Parameters</h3>
+                    <div class="form-group">
+                        <label>Swarm Size</label>
+                        <input type="number" id="swarmSize" value="30" min="5" max="100">
+                    </div>
+                    <div class="form-group">
+                        <label>Number of Informants</label>
+                        <input type="number" id="numInformants" value="3" min="1" max="10">
+                    </div>
+                    <div class="form-group">
+                        <label>Max Iterations</label>
+                        <input type="number" id="maxIterations" value="50" min="10" max="200">
+                    </div>
+                    <div class="form-group">
+                        <label>Search Bounds</label>
+                        <p style="margin: 8px 0; color: #666; font-weight: 500;">Fixed: [-1.0, +1.0]</p>
+                        <small>Bounds are fixed for consistent optimization</small>
+                    </div>
+                </div>
+
+                <!-- Run Button -->
+                <div class="section">
+                    <button id="runButton" class="run-button" onclick="runExperiment()">Run Experiment</button>
+                    <div id="status" class="status"></div>
+                </div>
+            </div>
+
+            <!-- Right Panel: Results -->
+            <div class="results-panel">
+                <h2>Results</h2>
+
+                <!-- Dataset Info -->
+                <div class="section">
+                    <h3>Dataset Information</h3>
+                    <div id="datasetInfo" class="info-box">
+                        <p>Loading dataset...</p>
+                    </div>
+                </div>
+
+                <!-- Performance Metrics -->
+                <div class="section">
+                    <h3>Performance Metrics</h3>
+                    <div id="metricsBox" class="metrics-box">
+                        <p class="placeholder">Run experiment to see results</p>
+                    </div>
+                </div>
+
+                <!-- Convergence Chart -->
+                <div class="section chart-section">
+                    <h3>PSO Convergence</h3>
+                    <canvas id="convergenceChart" height="200"></canvas>
+                </div>
+
+                <!-- Network Summary -->
+                <div class="section">
+                    <h3>Network Summary</h3>
+                    <div id="networkSummary" class="info-box">
+                        <p class="placeholder">Configure and run to see network details</p>
+                    </div>
+                </div>
+
+                <!-- Export Results -->
+                <div class="section">
+                    <button id="exportButton" class="export-button" onclick="exportResults()" style="display: none;">
+                        Export Results (JSON)
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

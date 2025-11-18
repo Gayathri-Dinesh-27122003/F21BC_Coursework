@@ -1,0 +1,87 @@
+{
+  "title": "PSO-ANN Web Application Configuration",
+  "description": "Configuration file for web application",
+  "datasets": {
+    "default": "concrete_strength",
+    "concrete_strength": {
+      "file": "data/processed_data.npz",
+      "description": "Concrete Compressive Strength Dataset",
+      "n_features": 8,
+      "n_samples": 1030
+    }
+  },
+  "templates": [
+    {
+      "name": "Small Network",
+      "key": "small",
+      "description": "Fast 3-layer network, good for testing",
+      "layer_sizes": [8, 64, 32, 1],
+      "swarm_size": 25,
+      "num_informants": 3,
+      "max_iterations": 50,
+      "bounds": [-5.0, 5.0]
+    },
+    {
+      "name": "Medium Network",
+      "key": "medium",
+      "description": "Balanced 4-layer network",
+      "layer_sizes": [8, 128, 64, 32, 1],
+      "swarm_size": 30,
+      "num_informants": 3,
+      "max_iterations": 60,
+      "bounds": [-5.0, 5.0]
+    },
+    {
+      "name": "Deep Network",
+      "key": "deep",
+      "description": "Deep 5-layer network for better accuracy",
+      "layer_sizes": [8, 200, 150, 100, 50, 1],
+      "swarm_size": 35,
+      "num_informants": 3,
+      "max_iterations": 70,
+      "bounds": [-5.0, 5.0]
+    },
+    {
+      "name": "Large Network",
+      "key": "large",
+      "description": "Very deep 6-layer network for maximum complexity",
+      "layer_sizes": [8, 300, 200, 128, 64, 32, 1],
+      "swarm_size": 40,
+      "num_informants": 3,
+      "max_iterations": 80,
+      "bounds": [-5.0, 5.0]
+    }
+  ],
+  "pso_parameters": {
+    "swarm_size": {
+      "default": 30,
+      "min": 5,
+      "max": 100,
+      "description": "Number of particles in swarm"
+    },
+    "num_informants": {
+      "default": 3,
+      "min": 1,
+      "max": 10,
+      "description": "Number of informants per particle"
+    },
+    "max_iterations": {
+      "default": 50,
+      "min": 10,
+      "max": 200,
+      "description": "Maximum optimization iterations"
+    },
+    "bounds": {
+      "default": 5.0,
+      "min": 0.1,
+      "max": 20.0,
+      "description": "Search bounds [-X, X] for parameters"
+    }
+  },
+  "ui_settings": {
+    "theme": "light",
+    "port": 5000,
+    "debug": true,
+    "auto_load_data": true
+  }
+}

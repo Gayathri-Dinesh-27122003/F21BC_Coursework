@@ -38,6 +38,20 @@ class ActivationFunctions:
         return np.maximum(alpha*x, x)
     
     @staticmethod
+    def elu(x, alpha=1.0):
+        "ELU (Exponential Linear Unit) = x if x > 0 else alpha * (exp(x) - 1)"
+        x = np.clip(x, -500, 500)
+        return np.where(x > 0, x, alpha * (np.exp(x) - 1))
+    
+    @staticmethod
+    def selu(x):
+        "SELU (Scaled ELU) with alpha=1.6733 and scale=1.0507"
+        alpha = 1.6733
+        scale = 1.0507
+        x = np.clip(x, -500, 500)
+        return scale * np.where(x > 0, x, alpha * (np.exp(x) - 1))
+    
+    @staticmethod
     def get_function(name):
         #Returns the activation function based on the name provided
         activations = {
@@ -46,7 +60,9 @@ class ActivationFunctions:
             'linear': ActivationFunctions.linear,
             'softmax': ActivationFunctions.softmax,
             'tanh': ActivationFunctions.tanh,
-            'leaky_relu': ActivationFunctions.leaky_relu
+            'leaky_relu': ActivationFunctions.leaky_relu,
+            'elu': ActivationFunctions.elu,
+            'selu': ActivationFunctions.selu
             }
         if name not in activations:
             raise ValueError(f"Activation function '{name}' is not supported.")
@@ -72,7 +88,7 @@ class NetworkArchitecture:
                              f"must be equal to number of layers - 1 ({len(self.layer_sizes) - 1})")
         
         #Check for valid activation function names
-        valid_activations = ['relu', 'sigmoid', 'linear', 'softmax', 'tanh', 'leaky_relu']
+        valid_activations = ['relu', 'sigmoid', 'linear', 'softmax', 'tanh', 'leaky_relu', 'elu', 'selu']
 
         for activation in self.activation_functions:
             if activation not in valid_activations:

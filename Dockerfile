@@ -11,8 +11,12 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy project files
 COPY . .
 
-# Set working directory to src
-WORKDIR /app/src
+# Expose port for Flask
+EXPOSE 5000
 
-# Run the demo
-CMD ["python3", "main.py"]
+# Set environment
+ENV FLASK_APP=app.py
+ENV PYTHONUNBUFFERED=1
+
+# Run the web app
+CMD ["python3", "app.py"]

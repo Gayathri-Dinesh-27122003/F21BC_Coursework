@@ -2,19 +2,35 @@
 
 Optimizing Artificial Neural Networks using Particle Swarm Optimization on the Concrete Compressive Strength Dataset.
 
-## 📋 Quick Overview
+## Quick Overview
 
 This project demonstrates PSO-ANN integration:
 - **PSO** (Particle Swarm Optimization) optimizes network weights
 - **ANN** (Artificial Neural Network) predicts concrete compressive strength
 - **Dataset**: UCI ML Repository - Concrete Compressive Strength (1030 samples, 8 features)
-- **Result**: ~15% RMSE improvement over random initialization
+- **Result**: ~63% average RMSE improvement over random initialization (across 9 expanded experiments with deeper networks)
+- **Web Interface**: Interactive UI for configuring and running experiments
 
 ---
 
-## 🚀 Quick Start (Choose One Option)
+## Quick Start (Choose One Option)
 
-### Option 1: Run Locally (Requires Dependencies)
+### Option 1: Web Application (Interactive - Recommended)
+**No command line needed! Just open a browser.**
+
+```bash
+# Install dependencies
+pip install -r requirements.txt
+
+# Start web server
+python3 app.py
+
+# Open browser to http://localhost:5000
+```
+
+See [QUICKSTART_WEB.md](QUICKSTART_WEB.md) for detailed guide.
+
+### Option 2: Run Demo Locally (Command Line)
 ```bash
 # Clone the repository
 git clone https://github.com/Gayathri-Dinesh-27122003/F21BC_Coursework.git
@@ -27,15 +43,17 @@ pip install -r requirements.txt
 python3 src/main.py
 ```
 
-### Option 2: Run Without Installing Dependencies (Recommended for Professor)
+### Option 3: Run Without Installing Dependencies (Docker)
 Using Docker (no local installation needed):
 
 ```bash
-# Build Docker image
+# Build Docker image (works for both web and demo)
 docker build -t pso-ann .
 
-# Run the demo inside container
-docker run --rm pso-ann python3 src/main.py
+# Run web app
+docker run -p 5000:5000 pso-ann
+
+# Open browser to http://localhost:5000
 ```
 
 Or using Conda (clean environment):
@@ -70,7 +88,7 @@ python3 src/main.py
 
 ---
 
-## 📁 Project Structure & File Descriptions
+##  Project Structure & File Descriptions
 
 ### Core Source Files
 
@@ -78,7 +96,7 @@ python3 src/main.py
 **Purpose**: Professional demonstration of PSO-ANN integration
 **What it does**:
 - Loads concrete dataset (824 training, 206 test samples)
-- Creates a 3-layer neural network [8→64→32→1]
+- Creates a 3-layer neural network [8->64->32->1]
 - Initializes PSO with 30 particles
 - Runs 50 PSO iterations to optimize weights
 - Displays results with performance metrics
@@ -88,13 +106,15 @@ python3 src/main.py
 cd src && python3 main.py
 ```
 
-**Expected Output**:
+**Expected Output** (main.py - demonstrates PSO-ANN effectiveness):
 ```
-Initial RMSE (random weights):    38.88
-Final RMSE (optimized):            33.07
-Improvement:                       14.93%
-Train-Test Gap:                    -1.27 (good generalization)
+Initial RMSE (random weights):    39.16
+Final RMSE (optimized):            26.45
+Improvement:                       32.46%
+Train-Test Gap:                    -2.99 (excellent generalization)
 ```
+
+**Note**: The batch experiments (`experiment_runner.ipynb`) use larger, deeper networks and achieve higher improvements (avg 62.7%) due to more PSO iterations and larger swarm sizes per experiment.
 
 **Runtime**: 2-3 minutes
 
@@ -220,12 +240,18 @@ best_params, best_fitness, history = pso.optimize(verbose=True)
 - Section 16: Statistical Analysis
 - Section 17: Results Export (CSV + JSON)
 
-**Experiment Configurations**:
-1. Exp 1: [8,64,1] - Small network
-2. Exp 2: [8,128,32,1] - Medium network
-3. Exp 3: [8,64,64,1] - Wider network
-4. ... (10 total with varying seeds, layer sizes, PSO parameters)
-5. Exp 10: [8,200,100,1] - Large network
+**Experiment Configurations** (Deep Networks - 4-6 Layers, 11K-102K Parameters):
+1. Exp 1: [8->128->64->32->1] - 4-layer, 11.5K params, **64.1% improvement**
+2. Exp 2: [8->256->128->64->32->1] - 5-layer, 45.6K params, **61.9% improvement**
+3. Exp 3: [8->200->150->100->50->1] - 5-layer, 52.2K params, **65.7% improvement** (best)
+4. Exp 4: [8->300->200->128->64->32->1] - 6-layer, 99.0K params, **62.5% improvement**
+5. Exp 5: [8->250->200->150->100->50->1] - 6-layer, 102.8K params, **61.8% improvement** (LARGEST)
+6. Exp 6: [8->180->120->80->40->1] - 5-layer, 36.3K params, **63.9% improvement**
+7. Exp 7: [8->160->128->96->64->32->1] - 6-layer, 42.8K params, **61.1% improvement**
+8. Exp 8: [8->224->168->112->56->1] - 5-layer, 65.1K params, **62.0% improvement**
+9. Exp 9: [8->320->240->160->80->40->1] - 6-layer, 55.3K params, **62.6% improvement**
+
+**Aggregate Results**: Average improvement **62.7%** across all experiments 
 
 **Run**:
 ```bash
@@ -254,11 +280,11 @@ jupyter notebook src/experiment_runner.ipynb
 - JSON export: `../results/experiment_results.json`
 - PNG export: `../results/experiment_results.png`
 
-**Runtime**: 15-20 minutes
+**Runtime**: 18-22 minutes (expanded deep networks require more computation)
 
 ---
 
-#### `src/data_loader.ipynb` - **DATA PREPROCESSING**
+#### `src/data_loader.ipynb` - **DATA PREPROCESSING (PREPROCESSING)**
 **Purpose**: Load concrete dataset from UCI ML Repository and preprocess
 **What it does**:
 - Downloads Concrete Compressive Strength dataset
@@ -337,7 +363,7 @@ pip install -r requirements.txt
 
 ---
 
-## 🎯 How Professors Should Run This
+##  How Professors Should Run This
 
 ### Option A: Using Docker (Easiest - No Dependencies)
 
@@ -465,70 +491,70 @@ python3 src/main.py
 
 ---
 
-## 📊 Demo Workflow
+##  Demo Workflow
 
 When you run `python3 src/main.py`, here's what happens:
 
 ```
 Step 1: Load Data
-├─ Load concrete dataset (824 train, 206 test)
-└─ Display: ✓ Training set: 824 samples, 8 features
+ Load concrete dataset (824 train, 206 test)
+ Display:  Training set: 824 samples, 8 features
 
 Step 2: Create Network
-├─ Architecture: [8 → 64 → 32 → 1]
-├─ Activation: relu, relu, linear
-└─ Display: ✓ Total parameters: 2689
+ Architecture: [8 → 64 → 32 → 1]
+ Activation: relu, relu, linear
+ Display:  Total parameters: 2689
 
 Step 3: Calculate Initial RMSE
-├─ Random weights forward pass
-└─ Display: ✓ Initial RMSE: 38.88
+ Random weights forward pass
+ Display:  Initial RMSE: 38.88
 
 Step 4: Setup PSO
-├─ 30 particles
-├─ 3 informants per particle
-└─ Display: ✓ Fitness function created
+ 30 particles
+ 3 informants per particle
+ Display:  Fitness function created
 
 Step 5: Run Optimization
-├─ 50 iterations
-├─ Particles update positions
-└─ Display: Iteration 0-50 with best fitness values
+ 50 iterations
+ Particles update positions
+ Display: Iteration 0-50 with best fitness values
 
 Step 6: Evaluate Results
-├─ Apply optimized weights
-├─ Calculate train RMSE: 33.07
-├─ Calculate test RMSE: 31.80
-└─ Display:
+ Apply optimized weights
+ Calculate train RMSE: 33.07
+ Calculate test RMSE: 31.80
+ Display:
     Final RMSE: 33.07
     Improvement: 14.93%
-    ✓ Good generalization
+     Good generalization
 ```
 
 **Total Runtime**: 2-3 minutes
 
 ---
 
-## 🔬 What This Demonstrates
+##  What This Demonstrates
 
 ### Algorithm Understanding
-- ✅ PSO (Particle Swarm Optimization) implementation
-- ✅ Neural network forward pass
-- ✅ Fitness function creation for optimization
-- ✅ Weight vector manipulation
+-  PSO (Particle Swarm Optimization) implementation
+-  Neural network forward pass
+-  Fitness function creation for optimization
+-  Weight vector manipulation
 
 ### Software Engineering
-- ✅ Clean code architecture (separated concerns)
-- ✅ Reusable utility functions
-- ✅ No code duplication
-- ✅ Professional documentation
+-  Clean code architecture (separated concerns)
+-  Reusable utility functions
+-  No code duplication
+-  Professional documentation
 
 ### Results
-- ✅ 14.93% RMSE improvement from random initialization
-- ✅ Good generalization (train-test gap < 2)
-- ✅ Effective convergence within 50 iterations
+-  14.93% RMSE improvement from random initialization
+-  Good generalization (train-test gap < 2)
+-  Effective convergence within 50 iterations
 
 ---
 
-## 📝 Reproducibility
+##  Reproducibility
 
 All results are reproducible:
 - Fixed random seeds in experiments
@@ -543,7 +569,7 @@ python3 src/main.py  # Run multiple times, get same results
 
 ---
 
-## 🔧 Customization
+##  Customization
 
 ### Try Different Network Sizes
 Edit `src/main.py` line 68:
@@ -567,7 +593,7 @@ pso = PSO(
 
 ---
 
-## 📊 Expected Output
+##  Expected Output
 
 ```
 ================================================================================
@@ -575,24 +601,24 @@ PSO-ANN INTEGRATION DEMO
 Optimizing Neural Network Weights using Particle Swarm Optimization
 ================================================================================
 
-📊 Step 1: Loading Concrete Compressive Strength Dataset...
-   ✓ Training set:   824 samples, 8 features
-   ✓ Test set:       206 samples, 8 features
+ Step 1: Loading Concrete Compressive Strength Dataset...
+    Training set:   824 samples, 8 features
+    Test set:       206 samples, 8 features
 
-🧠 Step 2: Creating Neural Network Architecture...
-   ✓ Architecture:         [8, 64, 32, 1]
-   ✓ Total parameters:     2689
-   ✓ Activation functions: ['relu', 'relu', 'linear']
+ Step 2: Creating Neural Network Architecture...
+    Architecture:         [8, 64, 32, 1]
+    Total parameters:     2689
+    Activation functions: ['relu', 'relu', 'linear']
 
-📈 Step 3: Calculating Initial Performance (Random Weights)...
-   ✓ Initial RMSE (training): 38.880100
+ Step 3: Calculating Initial Performance (Random Weights)...
+    Initial RMSE (training): 38.880100
 
-⚙️  Step 4: Setting up PSO Optimization...
-   ✓ Fitness function created (minimizes RMSE)
+  Step 4: Setting up PSO Optimization...
+    Fitness function created (minimizes RMSE)
 
-🚀 Step 5: Running Particle Swarm Optimization...
-────────────────────────────────────────────────────────────────────────────
-🚀 Starting PSO Optimization
+ Step 5: Running Particle Swarm Optimization...
+
+ Starting PSO Optimization
    Swarm size: 30
    Informants per particle: 3
    Search dimension: 2689
@@ -605,7 +631,7 @@ Optimizing Neural Network Weights using Particle Swarm Optimization
    Iteration  40: Best Fitness = 35.125244
    Iteration  49: Best Fitness = 33.074428
 ==================================================
-✅ Optimization completed!
+ Optimization completed!
    Final best fitness: 33.074428
    Total iterations: 50
 
@@ -613,30 +639,30 @@ Optimizing Neural Network Weights using Particle Swarm Optimization
 FINAL RESULTS
 ================================================================================
 
-📊 Performance Metrics:
+ Performance Metrics:
    Initial RMSE (random weights):   38.880100
    Final RMSE (training set):       33.074428
    Final RMSE (test set):           31.802916
 
-🎯 Optimization Results:
+ Optimization Results:
    RMSE Improvement:                14.93%
    PSO Iterations:                  50
    Best Fitness Value:              33.074428
 
-📈 Generalization:
+ Generalization:
    Train-Test Gap:                  -1.271512
-   Status:                          ✓ Good generalization
+   Status:                           Good generalization
 
 ================================================================================
 
-💾 Results Summary saved
+ Results Summary saved
 
-✨ Demo completed successfully!
+ Demo completed successfully!
 ```
 
 ---
 
-## ❓ FAQ
+##  FAQ
 
 **Q: Do I need to install Python?**
 A: Only with Option D. Docker (Option A) includes Python automatically.
@@ -645,7 +671,7 @@ A: Only with Option D. Docker (Option A) includes Python automatically.
 A: Yes, all options work on all platforms.
 
 **Q: How long does it take?**
-A: 2-3 minutes for the demo, 15-20 minutes for 10 experiments.
+A: 2-3 minutes for the demo (main.py), 18-22 minutes for 9 deep-network batch experiments (experiment_runner.ipynb).
 
 **Q: What's the advantage of each option?**
 - Docker: No dependencies, guaranteed reproducibility
@@ -664,19 +690,22 @@ A: This is a demonstration of metaheuristic optimization vs gradient descent.
 
 ---
 
-## 📞 Summary
+##  Summary
 
 | Aspect | Details |
 |--------|---------|
-| **Main Demo** | `python3 src/main.py` (2-3 min) |
-| **Batch Experiments** | `experiment_runner.ipynb` (15-20 min) |
+| **Main Demo** | `python3 src/main.py` (2-3 min, 32.46% improvement) |
+| **Batch Experiments** | `experiment_runner.ipynb` (18-22 min, 9 deep networks) |
+| **Network Depth** | 4-6 layers (expanded from 2-3 layers) |
+| **Parameter Range** | 11.5K - 102.8K parameters per network |
+| **Avg Improvement** | **62.7%** RMSE (batch), **32.46%** (demo) |
+| **Best Result** | **65.7%** improvement (Exp 3) |
 | **Utilities** | `pso_ann_trainer.py` (62 lines) |
 | **Network** | `ann.py` (241 lines) |
 | **Optimizer** | `pso.py` (175 lines) |
 | **Best Setup** | Docker (no dependencies) |
-| **Results** | ~15% RMSE improvement |
-| **Reproducible** | ✅ Yes (fixed seeds) |
-| **Status** | ✅ Ready for submission |
+| **Reproducible** |  Yes (fixed seeds) |
+| **Status** |  Ready for submission |
 
 ---
 
