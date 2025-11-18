@@ -131,13 +131,7 @@ class NeuralNetwork:
     #Configurable neural network for regression tasks
 
     def __init__(self, layer_sizes, activation_functions):
-        """
-        Initialize neural network.
         
-        Args:
-            layer_sizes (list): Number of neurons in each layer, e.g., [8, 16, 1]
-            activation_functions (list): Activation function for each layer (except input), e.g., ['relu', 'linear'] for 2-layer network
-        """
 
         self.architecture = NetworkArchitecture(layer_sizes, activation_functions)
         self.weights = []
@@ -167,15 +161,7 @@ class NeuralNetwork:
             self.biases.append(bias_vector)
 
     def forward(self, X):
-        """
-        Forward pass through the network.
-        
-        Args:
-            X (numpy.ndarray): Input data of shape (n_samples, n_features)
-            
-        Returns:
-            numpy.ndarray: Network output
-        """
+       
         current_output = X
         
         for i in range(len(self.weights)):
@@ -191,18 +177,12 @@ class NeuralNetwork:
         return current_output
     
     def predict(self, X):
-        """Make predictions using the network"""
+
         return self.forward(X)
     
     # PSO integration methods
     def set_parameters(self, parameter_vector):
-        """
-        Set all network parameters from a flat vector.
-        Used by PSO to update particle positions.
         
-        Args:
-            parameter_vector (numpy.ndarray): Flat array containing all weights and biases
-        """
         pointer = 0
         
         for i in range(len(self.weights)):
@@ -217,13 +197,7 @@ class NeuralNetwork:
             pointer += bias_size
     
     def get_parameters(self):
-        """
-        Get all network parameters as a flat vector.
-        Used by PSO to represent particle positions.
         
-        Returns:
-            numpy.ndarray: Flat array containing all weights and biases
-        """
         parameter_list = []
         
         for i in range(len(self.weights)):
@@ -233,12 +207,7 @@ class NeuralNetwork:
         return np.concatenate(parameter_list)
     
     def get_parameter_count(self):
-        """
-        Get the total number of trainable parameters in the network.
-        
-        Returns:
-            int: Total number of weights and biases
-        """
+       
         total_parameters = 0
         
         for i in range(len(self.weights)):
@@ -247,12 +216,7 @@ class NeuralNetwork:
         return total_parameters
     
     def get_network_info(self):
-        """
-        Get complete information about the network architecture.
-        
-        Returns:
-            dict: Dictionary containing architecture details
-        """
+       
         arch_info = self.architecture.get_network_summary()
         arch_info['total_parameters'] = self.get_parameter_count()
         return arch_info
