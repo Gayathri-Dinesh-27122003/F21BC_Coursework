@@ -329,7 +329,21 @@ header .description {
 /* Chart Section */
 .chart-section {
     position: relative;
-    height: 350px;
+    max-height: 600px;
+    overflow-y: auto;
+    padding: 10px;
+}
+
+.chart-section h2 {
+    color: #333;
+    margin-bottom: 20px;
+    font-size: 1.5em;
+    position: sticky;
+    top: 0;
+    background: white;
+    padding: 10px 0;
+    z-index: 10;
+    border-bottom: 2px solid #667eea;
 }
 
 canvas {

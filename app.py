@@ -15,7 +15,8 @@ sys.path.insert(0, str(Path(__file__).parent / 'src'))
 
 from ann import NeuralNetwork
 from pso import PSO
-from pso_ann_trainer import rmse, create_fitness_function, to_numpy
+from pso_ann_trainer import (rmse, mae, create_fitness_function, to_numpy,
+                              cross_validate_pso_ann, run_multiple_experiments)
 
 app = Flask(__name__)
 app.config['JSON_SORT_KEYS'] = False
@@ -75,6 +76,16 @@ def run_experiment():
         max_iterations = int(params.get('max_iterations', 50))
         bounds = (-1.0, 1.0)  # Fixed bounds
         
+        # New parameters for advanced features
+        num_runs = int(params.get('num_runs', 1))  # Number of independent runs
+        use_cross_validation = params.get('use_cross_validation', False)
+        k_folds = int(params.get('k_folds', 5))
+        
+        # PSO acceleration coefficients
+        w = float(params.get('w', 0.729))  # Inertia weight
+        c1 = float(params.get('c1', 1.49445))  # Cognitive coefficient
+        c2 = float(params.get('c2', 1.49445))  # Social coefficient
+        
         # Validate activation functions
         valid_activations = ['relu', 'tanh', 'sigmoid', 'elu', 'selu', 'linear']
         for act in activation_functions:
@@ -85,15 +96,79 @@ def run_experiment():
         if len(layer_sizes) - 1 != len(activation_functions):
             return jsonify({'error': 'Number of activation functions must be (number of layers - 1)'}), 400
         
+        # Handle cross-validation mode
+        if use_cross_validation:
+            # Create temporary network to get parameter count
+            temp_network = NeuralNetwork(layer_sizes, activation_functions)
+            temp_network_info = temp_network.get_network_info()
+            
+            cv_results = cross_validate_pso_ann(
+                np.vstack([X_train_global, X_test_global]),
+                np.concatenate([y_train_global, y_test_global]),
+                layer_sizes, activation_functions,
+                swarm_size, num_informants, max_iterations, bounds, k_folds
+            )
+            
+            return jsonify({
+                'success': True,
+                'mode': 'cross_validation',
+                'network_info': {
+                    'layer_sizes': layer_sizes,
+                    'total_parameters': int(temp_network_info['total_parameters']),
+                    'activation_functions': activation_functions
+                },
+                'pso_params': {
+                    'swarm_size': swarm_size,
+                    'num_informants': num_informants,
+                    'max_iterations': max_iterations,
+                    'bounds': bounds,
+                    'w': w, 'c1': c1, 'c2': c2
+                },
+                'cross_validation': cv_results
+            })
+        
+        # Handle multiple runs mode
+        if num_runs > 1:
+            # Create temporary network to get parameter count
+            temp_network = NeuralNetwork(layer_sizes, activation_functions)
+            temp_network_info = temp_network.get_network_info()
+            
+            multi_run_results = run_multiple_experiments(
+                X_train_global, y_train_global, X_test_global, y_test_global,
+                layer_sizes, activation_functions,
+                swarm_size, num_informants, max_iterations, bounds, num_runs
+            )
+            
+            return jsonify({
+                'success': True,
+                'mode': 'multiple_runs',
+                'network_info': {
+                    'layer_sizes': layer_sizes,
+                    'total_parameters': int(temp_network_info['total_parameters']),
+                    'activation_functions': activation_functions
+                },
+                'pso_params': {
+                    'swarm_size': swarm_size,
+                    'num_informants': num_informants,
+                    'max_iterations': max_iterations,
+                    'bounds': bounds,
+                    'w': w, 'c1': c1, 'c2': c2
+                },
+                'multiple_runs': multi_run_results
+            })
+        
+        # Standard single run
+        
         # Create network
         network = NeuralNetwork(layer_sizes, activation_functions)
         network_info = network.get_network_info()
         
-        # Calculate initial RMSE
+        # Calculate initial RMSE and MAE
         y_pred_initial = network.predict(X_train_global)
         if y_pred_initial.ndim > 1:
             y_pred_initial = y_pred_initial.ravel()
         rmse_initial = float(rmse(y_train_global, y_pred_initial))
+        mae_initial = float(mae(y_train_global, y_pred_initial))
         
         # Create fitness function
         fitness_func = create_fitness_function(network, X_train_global, y_train_global)
@@ -104,9 +179,9 @@ def run_experiment():
             dimension=network_info['total_parameters'],
             swarm_size=swarm_size,
             num_informants=num_informants,
-            w=0.729,
-            c1=1.49445,
-            c2=1.49445,
+            w=w,
+            c1=c1,
+            c2=c2,
             bounds=bounds,
             max_iterations=max_iterations
         )
@@ -121,11 +196,13 @@ def run_experiment():
         if y_pred_train.ndim > 1:
             y_pred_train = y_pred_train.ravel()
         rmse_train = float(rmse(y_train_global, y_pred_train))
+        mae_train = float(mae(y_train_global, y_pred_train))
         
         y_pred_test = network.predict(X_test_global)
         if y_pred_test.ndim > 1:
             y_pred_test = y_pred_test.ravel()
         rmse_test = float(rmse(y_test_global, y_pred_test))
+        mae_test = float(mae(y_test_global, y_pred_test))
         
         # Calculate metrics
         improvement = ((rmse_initial - rmse_train) / rmse_initial * 100)
@@ -133,6 +210,7 @@ def run_experiment():
         
         return jsonify({
             'success': True,
+            'mode': 'single_run',
             'network_info': {
                 'layer_sizes': network_info['layer_sizes'],
                 'total_parameters': int(network_info['total_parameters']),
@@ -142,12 +220,18 @@ def run_experiment():
                 'swarm_size': swarm_size,
                 'num_informants': num_informants,
                 'max_iterations': max_iterations,
-                'bounds': bounds
+                'bounds': bounds,
+                'w': w,
+                'c1': c1,
+                'c2': c2
             },
             'metrics': {
                 'rmse_initial': rmse_initial,
                 'rmse_train': rmse_train,
                 'rmse_test': rmse_test,
+                'mae_initial': mae_initial,
+                'mae_train': mae_train,
+                'mae_test': mae_test,
                 'improvement_percent': improvement,
                 'train_test_gap': gap,
                 'generalization_status': 'Good' if abs(gap) < 2.0 else 'Warning'

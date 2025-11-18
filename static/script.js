@@ -8,10 +8,22 @@ document.addEventListener('DOMContentLoaded', async () => {
     await loadDatasetInfo();
     await loadSuggestedConfigs();
     setupLayerPreview();
+    setupAdvancedControls();
     // Initialize preview and activation controls on first load
     updateLayerPreview();
     updateActivationControls();
 });
+
+// Setup advanced controls listeners
+function setupAdvancedControls() {
+    // Toggle k-folds input based on cross-validation checkbox
+    const cvCheckbox = document.getElementById('useCrossValidation');
+    const kFoldsGroup = document.getElementById('kFoldsGroup');
+    
+    cvCheckbox.addEventListener('change', () => {
+        kFoldsGroup.style.display = cvCheckbox.checked ? 'block' : 'none';
+    });
+}
 
 // Load dataset information
 async function loadDatasetInfo() {
@@ -54,6 +66,7 @@ function loadTemplate(index) {
         document.getElementById('maxIterations').value = config.max_iterations;
 
         updateLayerPreview();
+        updateActivationControls();
         // Ensure activation controls update when loading a template programmatically
         updateActivationControls();
 
@@ -251,6 +264,14 @@ async function runExperiment() {
         const numInformants = parseInt(document.getElementById('numInformants').value);
         const maxIterations = parseInt(document.getElementById('maxIterations').value);
         const bounds = [-1.0, 1.0]; // Fixed bounds
+        
+        // Advanced parameters
+        const numRuns = parseInt(document.getElementById('numRuns').value);
+        const useCrossValidation = document.getElementById('useCrossValidation').checked;
+        const kFolds = parseInt(document.getElementById('kFolds').value);
+        const w = parseFloat(document.getElementById('inertiaWeight').value);
+        const c1 = parseFloat(document.getElementById('cognitiveCoeff').value);
+        const c2 = parseFloat(document.getElementById('socialCoeff').value);
 
         // Validate inputs
         if (swarmSize < 5 || swarmSize > 100) {
@@ -275,7 +296,13 @@ async function runExperiment() {
                 swarm_size: swarmSize,
                 num_informants: numInformants,
                 max_iterations: maxIterations,
-                bounds: bounds
+                bounds: bounds,
+                num_runs: numRuns,
+                use_cross_validation: useCrossValidation,
+                k_folds: kFolds,
+                w: w,
+                c1: c1,
+                c2: c2
             })
         });
 
@@ -311,8 +338,18 @@ async function runExperiment() {
 
 // Display results
 function displayResults(result) {
-    // Display metrics
     const metricsBox = document.getElementById('metricsBox');
+    
+    // Handle different modes
+    if (result.mode === 'cross_validation') {
+        displayCrossValidationResults(result);
+        return;
+    } else if (result.mode === 'multiple_runs') {
+        displayMultipleRunsResults(result);
+        return;
+    }
+    
+    // Standard single run display
     const metrics = result.metrics;
 
     let metricsHtml = `
@@ -327,6 +364,14 @@ function displayResults(result) {
         <div class="metric">
             <div class="metric-label">Final RMSE (Test)</div>
             <div class="metric-value">${metrics.rmse_test.toFixed(4)}</div>
+        </div>
+        <div class="metric">
+            <div class="metric-label">MAE (Train)</div>
+            <div class="metric-value">${metrics.mae_train.toFixed(4)}</div>
+        </div>
+        <div class="metric">
+            <div class="metric-label">MAE (Test)</div>
+            <div class="metric-value">${metrics.mae_test.toFixed(4)}</div>
         </div>
         <div class="metric success">
             <div class="metric-label">Improvement</div>
@@ -344,6 +389,12 @@ function displayResults(result) {
 
     metricsBox.innerHTML = metricsHtml;
 
+    // Show convergence chart for single run
+    const chartSection = document.querySelector('.chart-section');
+    if (chartSection) {
+        chartSection.style.display = 'block';
+    }
+    
     // Update convergence chart
     updateConvergenceChart(result.convergence_history);
 
@@ -352,6 +403,220 @@ function displayResults(result) {
 
     // Show export button
     document.getElementById('exportButton').style.display = 'block';
+}
+
+// Display cross-validation results
+function displayCrossValidationResults(result) {
+    const metricsBox = document.getElementById('metricsBox');
+    const cv = result.cross_validation;
+    
+    let metricsHtml = `
+        <div class="metric success">
+            <div class="metric-label">Cross-Validation Mode</div>
+            <div class="metric-value">${cv.k_folds}-Fold CV</div>
+        </div>
+        <div class="metric">
+            <div class="metric-label">RMSE (Mean ± Std)</div>
+            <div class="metric-value">${cv.rmse_mean.toFixed(4)} ± ${cv.rmse_std.toFixed(4)}</div>
+        </div>
+        <div class="metric">
+            <div class="metric-label">MAE (Mean ± Std)</div>
+            <div class="metric-value">${cv.mae_mean.toFixed(4)} ± ${cv.mae_std.toFixed(4)}</div>
+        </div>
+        <div class="metric success">
+            <div class="metric-label">Improvement (Mean ± Std)</div>
+            <div class="metric-value">${cv.improvement_mean.toFixed(2)}% ± ${cv.improvement_std.toFixed(2)}%</div>
+        </div>
+    `;
+    
+    // Add fold-by-fold results
+    cv.fold_results.forEach(fold => {
+        metricsHtml += `
+            <div class="metric">
+                <div class="metric-label">Fold ${fold.fold} RMSE</div>
+                <div class="metric-value">${fold.rmse_val.toFixed(4)}</div>
+            </div>
+        `;
+    });
+    
+    metricsBox.innerHTML = metricsHtml;
+    
+    // Display convergence chart for each fold
+    const chartSection = document.querySelector('.chart-section');
+    if (chartSection) {
+        let chartsHtml = '<h2>Convergence History by Fold</h2>';
+        
+        cv.fold_results.forEach((fold, idx) => {
+            chartsHtml += `
+                <div style="margin-bottom: 25px; padding: 20px; background: #f8f9fa; border-radius: 8px; border: 1px solid #e0e0e0; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                    <h3 style="color: #667eea; margin-bottom: 15px; font-size: 1.1em; font-weight: 600;">Fold ${fold.fold} - RMSE: ${fold.rmse_val.toFixed(4)} | Improvement: ${fold.improvement_percent.toFixed(2)}%</h3>
+                    <div style="background: white; padding: 15px; border-radius: 5px;">
+                        <canvas id="convergenceChart${idx}" width="800" height="300"></canvas>
+                    </div>
+                </div>
+            `;
+        });
+        
+        chartSection.innerHTML = chartsHtml;
+        chartSection.style.display = 'block';
+        
+        // Draw each chart
+        cv.fold_results.forEach((fold, idx) => {
+            const canvas = document.getElementById(`convergenceChart${idx}`);
+            if (canvas && fold.convergence_history) {
+                drawConvergenceChart(canvas, fold.convergence_history);
+            }
+        });
+    }
+    
+    displayNetworkSummary(result);
+    document.getElementById('exportButton').style.display = 'block';
+}
+
+// Display multiple runs results
+function displayMultipleRunsResults(result) {
+    const metricsBox = document.getElementById('metricsBox');
+    const mr = result.multiple_runs;
+    
+    let metricsHtml = `
+        <div class="metric success">
+            <div class="metric-label">Multiple Runs</div>
+            <div class="metric-value">${mr.num_runs} Runs</div>
+        </div>
+        <div class="metric">
+            <div class="metric-label">RMSE (Mean ± Std)</div>
+            <div class="metric-value">${mr.rmse_test_mean.toFixed(4)} ± ${mr.rmse_test_std.toFixed(4)}</div>
+        </div>
+        <div class="metric">
+            <div class="metric-label">RMSE Range</div>
+            <div class="metric-value">${mr.rmse_test_min.toFixed(4)} - ${mr.rmse_test_max.toFixed(4)}</div>
+        </div>
+        <div class="metric">
+            <div class="metric-label">MAE (Mean ± Std)</div>
+            <div class="metric-value">${mr.mae_test_mean.toFixed(4)} ± ${mr.mae_test_std.toFixed(4)}</div>
+        </div>
+        <div class="metric success">
+            <div class="metric-label">Improvement (Mean ± Std)</div>
+            <div class="metric-value">${mr.improvement_mean.toFixed(2)}% ± ${mr.improvement_std.toFixed(2)}%</div>
+        </div>
+    `;
+    
+    // Add individual run results (first 6)
+    mr.run_results.slice(0, 6).forEach(run => {
+        metricsHtml += `
+            <div class="metric">
+                <div class="metric-label">Run ${run.run} RMSE</div>
+                <div class="metric-value">${run.rmse_test.toFixed(4)}</div>
+            </div>
+        `;
+    });
+    
+    metricsBox.innerHTML = metricsHtml;
+    
+    // Display convergence chart for each run
+    const chartSection = document.querySelector('.chart-section');
+    if (chartSection) {
+        let chartsHtml = '<h2>Convergence History by Run</h2>';
+        
+        runs.run_results.forEach((run, idx) => {
+            chartsHtml += `
+                <div style="margin-bottom: 25px; padding: 20px; background: #f8f9fa; border-radius: 8px; border: 1px solid #e0e0e0; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                    <h3 style="color: #667eea; margin-bottom: 15px; font-size: 1.1em; font-weight: 600;">Run ${run.run} - RMSE: ${run.rmse_test.toFixed(4)} | Improvement: ${run.improvement_percent.toFixed(2)}%</h3>
+                    <div style="background: white; padding: 15px; border-radius: 5px;">
+                        <canvas id="convergenceChart${idx}" width="800" height="300"></canvas>
+                    </div>
+                </div>
+            `;
+        });
+        
+        chartSection.innerHTML = chartsHtml;
+        chartSection.style.display = 'block';
+        
+        // Draw each chart
+        runs.run_results.forEach((run, idx) => {
+            const canvas = document.getElementById(`convergenceChart${idx}`);
+            if (canvas && run.convergence_history) {
+                drawConvergenceChart(canvas, run.convergence_history);
+            }
+        });
+    }
+    
+    displayNetworkSummary(result);
+    document.getElementById('exportButton').style.display = 'block';
+}
+
+// Helper function to draw convergence chart on a specific canvas
+function drawConvergenceChart(canvas, history) {
+    const ctx = canvas.getContext('2d');
+    
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: Array.from({length: history.length}, (_, i) => i),
+            datasets: [
+                {
+                    label: 'Best Fitness (RMSE)',
+                    data: history,
+                    borderColor: '#667eea',
+                    backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                    tension: 0.4,
+                    fill: true,
+                    pointRadius: 0,
+                    borderWidth: 2
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: true,
+                    labels: {
+                        color: '#333',
+                        font: {
+                            size: 12
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: false,
+                    ticks: {
+                        color: '#666',
+                        font: {
+                            size: 11
+                        }
+                    },
+                    grid: {
+                        color: 'rgba(0, 0, 0, 0.05)'
+                    },
+                    title: {
+                        display: true,
+                        text: 'RMSE',
+                        color: '#333'
+                    }
+                },
+                x: {
+                    ticks: {
+                        color: '#666',
+                        font: {
+                            size: 11
+                        }
+                    },
+                    grid: {
+                        color: 'rgba(0, 0, 0, 0.05)'
+                    },
+                    title: {
+                        display: true,
+                        text: 'Iteration',
+                        color: '#333'
+                    }
+                }
+            }
+        }
+    });
 }
 
 // Update convergence chart
@@ -416,20 +681,36 @@ function updateConvergenceChart(history) {
 // Display network summary
 function displayNetworkSummary(result) {
     const summary = result.network_info;
-    const html = `
-        <p><strong>Layer Sizes:</strong> ${summary.layer_sizes.join(' -> ')}</p>
-        <p><strong>Total Parameters:</strong> ${summary.total_parameters.toLocaleString()}</p>
-        <p><strong>Activation Functions:</strong> ${summary.activation_functions.join(', ')}</p>
-        <hr style="margin: 10px 0; border: none; border-top: 1px solid #ddd;">
-        <p><strong>PSO Configuration:</strong></p>
-        <p style="margin-left: 15px;">
-            Swarm: ${result.pso_params.swarm_size} particles<br>
-            Informants: ${result.pso_params.num_informants}<br>
-            Iterations: ${result.pso_params.max_iterations}<br>
-            Bounds: [${result.pso_params.bounds[0]}, ${result.pso_params.bounds[1]}]
-        </p>
-    `;
-    document.getElementById('networkSummary').innerHTML = html;
+    
+    // Build network info section
+    let networkInfoHtml = '';
+    if (summary.layer_sizes) {
+        networkInfoHtml += `<p><strong>Layer Sizes:</strong> ${summary.layer_sizes.join(' -> ')}</p>`;
+    }
+    if (summary.total_parameters !== undefined) {
+        networkInfoHtml += `<p><strong>Total Parameters:</strong> ${summary.total_parameters.toLocaleString()}</p>`;
+    }
+    if (summary.activation_functions) {
+        networkInfoHtml += `<p><strong>Activation Functions:</strong> ${summary.activation_functions.join(', ')}</p>`;
+    }
+    
+    // Build PSO config section
+    let psoConfigHtml = '';
+    if (result.pso_params) {
+        psoConfigHtml = `
+            <hr style="margin: 10px 0; border: none; border-top: 1px solid #ddd;">
+            <p><strong>PSO Configuration:</strong></p>
+            <p style="margin-left: 15px;">
+                Swarm: ${result.pso_params.swarm_size} particles<br>
+                Informants: ${result.pso_params.num_informants}<br>
+                Iterations: ${result.pso_params.max_iterations}<br>
+                Bounds: [${result.pso_params.bounds[0]}, ${result.pso_params.bounds[1]}]<br>
+                ${result.pso_params.w ? `w=${result.pso_params.w.toFixed(3)}, c1=${result.pso_params.c1.toFixed(3)}, c2=${result.pso_params.c2.toFixed(3)}` : ''}
+            </p>
+        `;
+    }
+    
+    document.getElementById('networkSummary').innerHTML = networkInfoHtml + psoConfigHtml;
 }
 
 // Export results as JSON

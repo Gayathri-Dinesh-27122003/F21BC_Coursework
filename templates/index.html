@@ -73,6 +73,47 @@
                     </div>
                 </div>
 
+                <!-- Advanced PSO Coefficients -->
+                <div class="section">
+                    <h3>Advanced PSO Coefficients</h3>
+                    <div class="form-group">
+                        <label>Inertia Weight (w)</label>
+                        <input type="number" id="inertiaWeight" value="0.729" min="0" max="1" step="0.001">
+                        <small>Balance between exploration and exploitation</small>
+                    </div>
+                    <div class="form-group">
+                        <label>Cognitive Coefficient (c1)</label>
+                        <input type="number" id="cognitiveCoeff" value="1.49445" min="0" max="4" step="0.001">
+                        <small>Particle's attraction to personal best</small>
+                    </div>
+                    <div class="form-group">
+                        <label>Social Coefficient (c2)</label>
+                        <input type="number" id="socialCoeff" value="1.49445" min="0" max="4" step="0.001">
+                        <small>Particle's attraction to global best</small>
+                    </div>
+                </div>
+
+                <!-- Advanced Evaluation Options -->
+                <div class="section">
+                    <h3>Advanced Evaluation</h3>
+                    <div class="form-group">
+                        <label>Number of Runs</label>
+                        <input type="number" id="numRuns" value="1" min="1" max="30">
+                        <small>Run multiple times to get statistics (mean ± std)</small>
+                    </div>
+                    <div class="form-group">
+                        <label style="display: flex; align-items: center; gap: 8px;">
+                            <input type="checkbox" id="useCrossValidation" style="width: auto;">
+                            Use Cross-Validation
+                        </label>
+                        <small>K-fold cross-validation for robust evaluation</small>
+                    </div>
+                    <div class="form-group" id="kFoldsGroup" style="display: none;">
+                        <label>Number of Folds (k)</label>
+                        <input type="number" id="kFolds" value="5" min="2" max="10">
+                    </div>
+                </div>
+
                 <!-- Run Button -->
                 <div class="section">
                     <button id="runButton" class="run-button" onclick="runExperiment()">Run Experiment</button>
