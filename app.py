@@ -302,7 +302,9 @@ if __name__ == '__main__':
         print(f"Training samples: {X_train_global.shape[0]}")
         print(f"Test samples: {X_test_global.shape[0]}")
         print(f"Features: {X_train_global.shape[1]}")
-        
+
+if __name__ == '__main__':
     import os
-    port = int(os.environ.get('PORT', 8080))
-    app.run(host='0.0.0.0', port=port, debug=False)
+    port = int(os.environ.get('PORT', 10000))
+    # Run the Flask development server
+    app.run(host='0.0.0.0', port=port, debug=True)
