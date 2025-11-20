@@ -1,11 +1,15 @@
 # Virtual environments
 coursework_env/
 venv/
+.venv/
+.env/
+F21BC_Coursework/
 
 # Python cache
 __pycache__/
 *.pyc
 *.pyo
+*.pyd
 
 # IDE
 .vscode/
@@ -19,8 +23,6 @@ results/*.log
 results/temp_*
 results/debug_*
 
-# Virtual environments
-F21BC_Coursework/  # Your virtual environment folder
-coursework_env/
-venv/
-.env/
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb_checkpoints
