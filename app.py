@@ -302,7 +302,7 @@ if __name__ == '__main__':
         print(f"Training samples: {X_train_global.shape[0]}")
         print(f"Test samples: {X_test_global.shape[0]}")
         print(f"Features: {X_train_global.shape[1]}")
-        app.run(debug=True, port=5000)
-    else:
-        print("Error: Data file not found!")
-        print(f"Expected: {npz_path}")
+        
+    import os
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port, debug=False)
