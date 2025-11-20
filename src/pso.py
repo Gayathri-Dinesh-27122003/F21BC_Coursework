@@ -2,19 +2,9 @@ import numpy as np
 import random
 
 class Particle:
-    """
-    Represents a single particle in the PSO swarm.
-    Each particle represents a candidate solution (ANN weights).
-    """
     
     def __init__(self, dimension, bounds=None):
-        """
-        Initialize a particle with random position and velocity.
         
-        Args:
-            dimension (int): Dimensionality of the search space (number of ANN parameters)
-            bounds (tuple): Optional bounds for particle positions (min, max)
-        """
         self.dimension = dimension
         self.bounds = bounds
         
@@ -43,7 +33,7 @@ class Particle:
             self.position = np.clip(self.position, bounds[0], bounds[1])
     
     def evaluate(self, fitness_function):
-        """Evaluate the particle's fitness and update personal best if improved."""
+        """Evaluate the particle's fitness and update personal best."""
         fitness = fitness_function(self.position)
         if fitness < self.best_fitness:
             self.best_position = self.position.copy()
@@ -52,28 +42,12 @@ class Particle:
 
 
 class PSO:
-    """
-    Particle Swarm Optimization implementation with informants (Algorithm 39).
-    """
     
     def __init__(self, objective_function, dimension, 
                  swarm_size=30, num_informants=3,
                  w=0.729, c1=1.49445, c2=1.49445,
                  bounds=None, max_iterations=100):
-        """
-        Initialize PSO optimizer.
         
-        Args:
-            objective_function (callable): Function to minimize
-            dimension (int): Dimensionality of search space (ANN parameter count)
-            swarm_size (int): Number of particles in swarm
-            num_informants (int): Number of informants per particle
-            w (float): Inertia weight
-            c1 (float): Cognitive acceleration coefficient
-            c2 (float): Social acceleration coefficient
-            bounds (tuple): Optional bounds for particle positions
-            max_iterations (int): Maximum number of iterations
-        """
         self.objective_function = objective_function
         self.dimension = dimension
         self.swarm_size = swarm_size
@@ -121,19 +95,13 @@ class PSO:
         return best_position
     
     def optimize(self, verbose=True):
-        """
-        Run the PSO optimization.
-        
-        Returns:
-            tuple: (best_position, best_fitness, history)
-        """
+
         if verbose:
             print(f" Starting PSO Optimization")
             print(f"   Swarm size: {self.swarm_size}")
             print(f"   Informants per particle: {self.num_informants}")
             print(f"   Search dimension: {self.dimension}")
             print(f"   Max iterations: {self.max_iterations}")
-            print("=" * 50)
         
         for iteration in range(self.max_iterations):
             for particle in self.swarm:
@@ -156,7 +124,6 @@ class PSO:
                 print(f"   Iteration {iteration:3d}: Best Fitness = {self.global_best_fitness:.6f}")
         
         if verbose:
-            print("=" * 50)
             print(f" Optimization completed!")
             print(f"   Final best fitness: {self.global_best_fitness:.6f}")
             print(f"   Total iterations: {self.max_iterations}")

@@ -1,8 +1,3 @@
-#!/usr/bin/env python3
-"""
-Example runner: load processed data, run a forward pass through your NeuralNetwork,
-and compute RMSE (random-initialization baseline).
-"""
 import numpy as np
 from pathlib import Path
 import joblib
@@ -12,9 +7,7 @@ from ann import NeuralNetwork
 
 
 def to_numpy(arr):
-    """Convert loaded arrays (possibly object dtype) to numeric numpy arrays.
-    Handles cases where saved arrays were pandas DataFrames or object arrays.
-    """
+    
     # if it's already a numpy array of numeric dtype, return directly
     arr = np.asarray(arr)
     if arr.dtype != object:
