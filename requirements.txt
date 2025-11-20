@@ -7,5 +7,6 @@ ipykernel
 ucimlrepo
 joblib
 flask
+gunicorn
 matplotlib
 seaborn
