@@ -12,23 +12,35 @@ A project demonstrating Particle Swarm Optimization for training Artificial Neur
 
 ## Quick Start
 
-### Web Application (Recommended)
+### Docker (Recommended)
+
+```bash
+# Build the Docker image
+docker build -t pso-ann .
+
+# Run the container
+docker run -p 10000:10000 pso-ann
+
+# Open browser to http://localhost:10000
+```
+
+### Web Application (Local)
 
 ```bash
 # Install dependencies
-pip install -r requirements.txt
+pip3 install -r requirements.txt
 
 # Run the Flask web app
-python app.py
+python3 app.py
 
-# Open browser to http://localhost:5000
+# Open browser to http://localhost:10000
 ```
 
 ### Command Line Demo
 
 ```bash
 # Run a single PSO-ANN optimization
-python src/main.py
+python3 src/main.py
 ```
 
 ### Jupyter Notebooks
@@ -82,17 +94,47 @@ jupyter notebook
 
 ## Deployment
 
-**Render (Cloud):**
+### Docker
+
+The easiest way to run the application consistently across environments:
+
+```bash
+# Build image
+docker build -t pso-ann .
+
+# Run container
+docker run -p 10000:10000 pso-ann
+
+# Access at http://localhost:10000
+```
+
+**Docker Features:**
+- Pre-configured with all dependencies
+- Consistent environment (Python 3.9, gunicorn server)
+- 2 workers, 120s timeout for long-running PSO computations
+- Isolated from host system
+
+### Render (Cloud)
+
+For cloud deployment:
 - Push code to GitHub
 - Connect repository to Render
 - Build Command: `pip install -r requirements.txt`
-- Start Command: `python app.py`
+- Start Command: `./start.sh`
 - Environment: Python 3
-- Render automatically detects PORT and handles deployment
+- Port: Render automatically assigns
 
-**Local:**
-- Runs on `http://localhost:5000`
-- Data and results persist in `data/` and `results/` directories
+### Local Development
+
+```bash
+# Install dependencies
+pip3 install -r requirements.txt
+
+# Run directly (development mode)
+python3 app.py
+
+# Access at http://localhost:10000
+```
 
 ## Results
 

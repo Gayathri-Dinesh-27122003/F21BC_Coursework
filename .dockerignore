@@ -1,0 +1,32 @@
+# Virtual environments
+.venv/
+venv/
+*.egg-info
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Git
+.git/
+.gitignore
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+
+# Development files
+*.md
+.dockerignore
+Dockerfile
+
+# Scripts
+start.sh

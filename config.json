@@ -16,9 +16,9 @@
       "key": "small",
       "description": "Fast 3-layer network, good for testing",
       "layer_sizes": [8, 64, 32, 1],
-      "swarm_size": 20,
+      "swarm_size": 25,
       "num_informants": 3,
-      "max_iterations": 30,
+      "max_iterations": 50,
       "bounds": [-5.0, 5.0]
     },
     {
@@ -26,9 +26,9 @@
       "key": "medium",
       "description": "Balanced 4-layer network",
       "layer_sizes": [8, 128, 64, 32, 1],
-      "swarm_size": 25,
+      "swarm_size": 30,
       "num_informants": 3,
-      "max_iterations": 40,
+      "max_iterations": 60,
       "bounds": [-5.0, 5.0]
     },
     {
@@ -36,9 +36,9 @@
       "key": "deep",
       "description": "Deep 5-layer network for better accuracy",
       "layer_sizes": [8, 200, 150, 100, 50, 1],
-      "swarm_size": 25,
+      "swarm_size": 35,
       "num_informants": 3,
-      "max_iterations": 40,
+      "max_iterations": 70,
       "bounds": [-5.0, 5.0]
     },
     {
@@ -46,17 +46,17 @@
       "key": "large",
       "description": "Very deep 6-layer network for maximum complexity",
       "layer_sizes": [8, 300, 200, 128, 64, 32, 1],
-      "swarm_size": 30,
+      "swarm_size": 40,
       "num_informants": 3,
-      "max_iterations": 50,
+      "max_iterations": 80,
       "bounds": [-5.0, 5.0]
     }
   ],
   "pso_parameters": {
     "swarm_size": {
-      "default": 20,
+      "default": 30,
       "min": 5,
-      "max": 50,
+      "max": 100,
       "description": "Number of particles in swarm"
     },
     "num_informants": {
@@ -66,9 +66,9 @@
       "description": "Number of informants per particle"
     },
     "max_iterations": {
-      "default": 30,
+      "default": 50,
       "min": 10,
-      "max": 100,
+      "max": 200,
       "description": "Maximum optimization iterations"
     },
     "bounds": {
