@@ -108,21 +108,7 @@ docker run -p 10000:10000 pso-ann
 # Access at http://localhost:10000
 ```
 
-**Docker Features:**
-- Pre-configured with all dependencies
-- Consistent environment (Python 3.9, gunicorn server)
-- 2 workers, 120s timeout for long-running PSO computations
-- Isolated from host system
 
-### Render (Cloud)
-
-For cloud deployment:
-- Push code to GitHub
-- Connect repository to Render
-- Build Command: `pip install -r requirements.txt`
-- Start Command: `./start.sh`
-- Environment: Python 3
-- Port: Render automatically assigns
 
 ### Local Development
 
