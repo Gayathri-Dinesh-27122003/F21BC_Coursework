@@ -2,14 +2,6 @@
 
 A project demonstrating Particle Swarm Optimization for training Artificial Neural Networks on the UCI Concrete Compressive Strength dataset.
 
-## Features
-
-- **PSO Algorithm 39** with dynamic informants for neural network weight optimization
-- **Interactive Web Interface** for running experiments and visualizing results
-- **10 Pre-configured Experiments** with varying network architectures
-- **Real-time Convergence Visualization** with 4-panel charts
-- **Export Results** in CSV/JSON formats
-
 ## Quick Start
 
 ### Docker (Recommended)
